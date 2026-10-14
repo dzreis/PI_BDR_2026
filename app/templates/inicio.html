@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Início{% endblock %}
+
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div>
+    <h1>Olá, {{ current_user.primeiro_nome() }}!</h1>
+    <p class="texto-suave">Veja por onde começar a organizar o seu negócio.</p>
+  </div>
+</header>
+
+<section class="card">
+  <h2 class="card__titulo">Primeiros passos</h2>
+
+  {#- (rota, ícone, título, descrição). Passos cujas telas ainda não existem aparecem como "Em breve". -#}
+  {% set passos = [
+    ("clientes.pagina", "users", "Cadastre seus clientes", "Guarde telefone, endereço e observações de cada um."),
+    ("servicos.pagina", "briefcase", "Monte seu catálogo de serviços", "Defina o tipo de serviço e o preço padrão."),
+    ("contratos.pagina", "file-text", "Crie contratos", "Ligue cada cliente a um serviço, com frequência e valor."),
+    ("agenda.pagina", "calendar", "Acompanhe a agenda", "As visitas são geradas a partir dos contratos."),
+    ("financeiro.pagina", "dollar-sign", "Veja o seu lucro", "Receitas e despesas de cada serviço."),
+  ] %}
+
+  <ol class="passos">
+    {% for endpoint, nome_icone, titulo, descricao in passos %}
+      {% if tem_rota(endpoint) %}
+        <li><a class="passo" href="{{ url_for(endpoint) }}">
+          <span class="passo__numero">{{ loop.index }}</span>
+          <span class="passo__texto"><strong>{{ titulo }}</strong><small>{{ descricao }}</small></span>
+          {{ ui.icone(nome_icone, 22) }}
+        </a></li>
+      {% else %}
+        <li><div class="passo passo--em-breve">
+          <span class="passo__numero">{{ loop.index }}</span>
+          <span class="passo__texto"><strong>{{ titulo }}</strong><small>{{ descricao }}</small></span>
+          <span class="badge badge--cinza">Em breve</span>
+        </div></li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+</section>
+{% endblock %}

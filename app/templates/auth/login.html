@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Entrar{% endblock %}
+{% block classe_body %}pagina-auth{% endblock %}
+
+{% block corpo %}
+<main class="auth">
+  <section class="auth__marca">
+    <div class="auth__marca-conteudo">
+      {{ ui.logo(56) }}
+      <h1>{{ NOME_APP }}</h1>
+      <p>Clientes, agenda e finanças do seu negócio em um só lugar.</p>
+      <ul class="auth__beneficios">
+        <li>{{ ui.icone("check", 18) }} Nunca mais esqueça uma visita</li>
+        <li>{{ ui.icone("check", 18) }} Histórico completo de cada cliente</li>
+        <li>{{ ui.icone("check", 18) }} Saiba quanto cada serviço realmente lucra</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="auth__formulario">
+    <div class="auth__caixa">
+      <div class="auth__logo-mobile">{{ ui.logo(36) }}<strong>{{ NOME_APP }}</strong></div>
+
+      <h2>Entrar na sua conta</h2>
+      <p class="texto-suave">Use seu e-mail e sua senha para continuar.</p>
+
+      {% include "_flash.html" %}
+
+      {#- O parâmetro "next" (página que a pessoa tentou abrir) é conferido no servidor -#}
+      <form method="post" action="{{ url_for('auth.login', next=request.args.get('next')) }}" class="form" data-formulario-auth>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="campo">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" value="{{ email }}" required maxlength="120" autocomplete="email" autofocus>
+        </div>
+
+        <div class="campo">
+          <label for="senha">Senha</label>
+          <div class="campo__senha">
+            <input type="password" id="senha" name="senha" required autocomplete="current-password">
+            <button type="button" class="campo__alternar" data-alternar-senha="senha" aria-label="Mostrar senha">Mostrar</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primario btn--bloco">Entrar</button>
+      </form>
+
+      <p class="auth__rodape">Ainda não tem conta? <a href="{{ url_for('auth.cadastro') }}">Criar conta</a></p>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

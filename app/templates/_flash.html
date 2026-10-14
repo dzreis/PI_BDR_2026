@@ -1,0 +1,13 @@
+{#- Mensagens "flash" enviadas pelo servidor (flash("texto", "erro"|"sucesso"|"info")). -#}
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+  {% if mensagens %}
+    <div class="alertas">
+      {% for categoria, texto in mensagens %}
+        <div class="alerta alerta--{{ categoria }}" role="{{ 'alert' if categoria == 'erro' else 'status' }}">
+          <span>{{ texto }}</span>
+          <button type="button" class="alerta__fechar" aria-label="Fechar aviso">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Criar conta{% endblock %}
+{% block classe_body %}pagina-auth{% endblock %}
+
+{% block corpo %}
+<main class="auth">
+  <section class="auth__marca">
+    <div class="auth__marca-conteudo">
+      {{ ui.logo(56) }}
+      <h1>{{ NOME_APP }}</h1>
+      <p>Comece a organizar clientes, visitas e finanças em poucos minutos.</p>
+      <ul class="auth__beneficios">
+        <li>{{ ui.icone("check", 18) }} Cadastro simples e gratuito</li>
+        <li>{{ ui.icone("check", 18) }} Seus dados protegidos por senha</li>
+        <li>{{ ui.icone("check", 18) }} Feito para pequenos negócios e MEIs</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="auth__formulario">
+    <div class="auth__caixa">
+      <div class="auth__logo-mobile">{{ ui.logo(36) }}<strong>{{ NOME_APP }}</strong></div>
+
+      <h2>Criar sua conta</h2>
+      <p class="texto-suave">Preencha os dados abaixo para começar.</p>
+
+      {% include "_flash.html" %}
+
+      <form method="post" action="{{ url_for('auth.cadastro') }}" class="form" data-formulario-auth>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="campo">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" name="nome" value="{{ nome }}" required minlength="2" maxlength="100" autocomplete="name" autofocus>
+        </div>
+
+        <div class="campo">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" value="{{ email }}" required maxlength="120" autocomplete="email">
+        </div>
+
+        <div class="campo">
+          <label for="senha">Senha</label>
+          <div class="campo__senha">
+            <input type="password" id="senha" name="senha" required minlength="8" autocomplete="new-password">
+            <button type="button" class="campo__alternar" data-alternar-senha="senha" aria-label="Mostrar senha">Mostrar</button>
+          </div>
+          <small class="campo__ajuda">Mínimo de 8 caracteres.</small>
+        </div>
+
+        <div class="campo">
+          <label for="confirmacao">Confirmar senha</label>
+          <input type="password" id="confirmacao" name="confirmacao" required autocomplete="new-password" data-confirma="senha">
+        </div>
+
+        <button type="submit" class="btn btn--primario btn--bloco">Criar conta</button>
+      </form>
+
+      <p class="auth__rodape">Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

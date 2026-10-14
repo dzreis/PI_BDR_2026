@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Erro {{ codigo }}{% endblock %}
+{% block classe_body %}pagina-erro{% endblock %}
+
+{#- Página de erro sem menu lateral (funciona mesmo sem usuário logado) -#}
+{% block corpo %}
+<main class="erro">
+  <div class="erro__caixa">
+    {{ ui.logo(48) }}
+    <p class="erro__codigo">{{ codigo }}</p>
+    <h1>{{ mensagem }}</h1>
+    <a class="btn btn--primario" href="{{ url_for('inicio.painel') }}">Voltar ao início</a>
+  </div>
+</main>
+{% endblock %}

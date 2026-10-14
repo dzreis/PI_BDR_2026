@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Serviços{% endblock %}
+
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div>
+    <h1>Serviços</h1>
+    <p class="texto-suave">O catálogo do que você oferece, com o preço padrão de cada um.</p>
+  </div>
+  <button type="button" class="btn btn--primario" id="botao-novo">{{ ui.icone("plus", 18) }} Novo serviço</button>
+</header>
+
+{{ ui.barra_ferramentas("Buscar serviço") }}
+
+{#- Os cartões são desenhados pelo JavaScript (static/js/servicos.js) -#}
+<section class="cartoes" id="lista"><p class="vazio">Carregando...</p></section>
+
+{% call ui.modal_formulario() %}
+  <div class="grade-form">
+    <div class="campo col-6" data-campo="tipo">
+      <label for="campo-tipo">Tipo de serviço</label>
+      <input type="text" id="campo-tipo" name="tipo" required minlength="2" maxlength="100" placeholder="Ex.: Jardinagem mensal">
+    </div>
+
+    <div class="campo col-6" data-campo="descricao">
+      <label for="campo-descricao">Descrição <span class="texto-suave">(opcional)</span></label>
+      <input type="text" id="campo-descricao" name="descricao" maxlength="255" placeholder="O que está incluso no serviço">
+    </div>
+
+    <div class="campo col-3" data-campo="preco_padrao">
+      <label for="campo-preco">Preço padrão (R$)</label>
+      <input type="text" id="campo-preco" name="preco_padrao" required inputmode="decimal" placeholder="150,00">
+    </div>
+
+    <div class="campo col-3" data-campo="duracao_dias">
+      <label for="campo-duracao">Duração <span class="texto-suave">(dias, opcional)</span></label>
+      <input type="number" id="campo-duracao" name="duracao_dias" min="1" max="65535" step="1" inputmode="numeric" placeholder="1">
+    </div>
+
+    <div class="campo campo--checkbox col-6" data-campo="ativo">
+      <label for="campo-ativo"><input type="checkbox" id="campo-ativo" name="ativo" checked> Serviço ativo (disponível para novos contratos)</label>
+    </div>
+  </div>
+{% endcall %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/servicos.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{#- Modelo base de todas as páginas.
+
+    Blocos que as páginas filhas podem preencher:
+      titulo      -> texto da aba do navegador
+      classe_body -> classe CSS extra no <body>
+      corpo       -> a página inteira (usado por login e erro, que não têm menu)
+      conteudo    -> miolo da página dentro do layout com menu lateral
+      scripts     -> <script> específicos da página
+-#}
+{% import "_componentes.html" as ui %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {#- O JavaScript lê este token para enviar nas requisições (veja app/security.py) -#}
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block titulo %}Início{% endblock %} · {{ NOME_APP }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block classe_body %}{% endblock %}">
+
+{% block corpo %}
+  {#- Itens do menu: (rota, ícone, texto). O item só aparece quando a página
+      correspondente já existe no sistema. -#}
+  {% set menu = [
+    ("inicio.painel", "home", "Início"),
+    ("agenda.pagina", "calendar", "Agenda"),
+    ("clientes.pagina", "users", "Clientes"),
+    ("servicos.pagina", "briefcase", "Serviços"),
+    ("contratos.pagina", "file-text", "Contratos"),
+    ("financeiro.pagina", "dollar-sign", "Financeiro"),
+  ] %}
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__topo">
+        {{ ui.logo(36) }}
+        <span class="sidebar__nome">{{ NOME_APP }}</span>
+      </div>
+
+      <nav class="sidebar__menu" aria-label="Menu principal">
+        {% for endpoint, nome_icone, rotulo in menu %}
+          {% if tem_rota(endpoint) %}
+            {% set ativo = request.blueprint == endpoint.split('.')[0] %}
+            <a href="{{ url_for(endpoint) }}" class="menu__item{% if ativo %} menu__item--ativo{% endif %}"{% if ativo %} aria-current="page"{% endif %}>
+              {{ ui.icone(nome_icone) }}<span>{{ rotulo }}</span>
+            </a>
+          {% endif %}
+        {% endfor %}
+      </nav>
+
+      <div class="sidebar__rodape">
+        <div class="usuario">
+          <span class="usuario__avatar" aria-hidden="true">{{ current_user.nome[:1]|upper }}</span>
+          <div class="usuario__dados">
+            <strong>{{ current_user.nome }}</strong>
+            <small>{{ current_user.email }}</small>
+          </div>
+        </div>
+        {#- Logout é POST (com token CSRF) para não ser acionado por um link externo -#}
+        <form method="post" action="{{ url_for('auth.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn--sidebar btn--bloco">{{ ui.icone("log-out", 18) }} Sair</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="app__overlay" id="overlay"></div>
+
+    <div class="app__principal">
+      <header class="topbar">
+        <button type="button" class="btn btn--fantasma btn--icone" id="botao-menu" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menu">
+          {{ ui.icone("menu", 24) }}
+        </button>
+        {{ ui.logo(28) }}
+        <strong>{{ NOME_APP }}</strong>
+      </header>
+
+      <main class="conteudo">
+        {% include "_flash.html" %}
+        {% block conteudo %}{% endblock %}
+      </main>
+    </div>
+  </div>
+{% endblock %}
+
+  {#- Área onde o JavaScript mostra as notificações rápidas (toasts) -#}
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

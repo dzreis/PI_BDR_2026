@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Clientes{% endblock %}
+
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div>
+    <h1>Clientes</h1>
+    <p class="texto-suave">Quem você atende, com contato e endereço.</p>
+  </div>
+  <button type="button" class="btn btn--primario" id="botao-novo">{{ ui.icone("plus", 18) }} Novo cliente</button>
+</header>
+
+{{ ui.barra_ferramentas("Buscar por nome, telefone ou cidade") }}
+
+{#- Os cartões são desenhados pelo JavaScript (static/js/clientes.js) -#}
+<section class="cartoes" id="lista"><p class="vazio">Carregando...</p></section>
+
+{% set ufs = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"] %}
+
+{% call ui.modal_formulario(grande=True) %}
+  <div class="grade-form">
+    <div class="campo col-6" data-campo="nome">
+      <label for="campo-nome">Nome</label>
+      <input type="text" id="campo-nome" name="nome" required minlength="2" maxlength="100">
+    </div>
+
+    <div class="campo col-3" data-campo="telefone">
+      <label for="campo-telefone">Telefone</label>
+      <input type="tel" id="campo-telefone" name="telefone" required inputmode="tel" maxlength="15" placeholder="(19) 99999-9999">
+    </div>
+
+    <div class="campo col-3" data-campo="email">
+      <label for="campo-email">E-mail <span class="texto-suave">(opcional)</span></label>
+      <input type="email" id="campo-email" name="email" maxlength="120">
+    </div>
+
+    <h3 class="form-secao">Endereço</h3>
+
+    <div class="campo col-2" data-campo="cep">
+      <label for="campo-cep">CEP</label>
+      <input type="text" id="campo-cep" name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000">
+    </div>
+
+    <div class="campo col-4" data-campo="logradouro">
+      <label for="campo-logradouro">Rua / Avenida</label>
+      <input type="text" id="campo-logradouro" name="logradouro" maxlength="120">
+    </div>
+
+    <small class="campo__ajuda col-6" id="ajuda-cep" aria-live="polite"></small>
+
+    <div class="campo col-2" data-campo="numero">
+      <label for="campo-numero">Número</label>
+      <input type="text" id="campo-numero" name="numero" maxlength="10">
+    </div>
+
+    <div class="campo col-4" data-campo="complemento">
+      <label for="campo-complemento">Complemento</label>
+      <input type="text" id="campo-complemento" name="complemento" maxlength="60" placeholder="Apto, bloco, referência...">
+    </div>
+
+    <div class="campo col-2" data-campo="bairro">
+      <label for="campo-bairro">Bairro</label>
+      <input type="text" id="campo-bairro" name="bairro" maxlength="60">
+    </div>
+
+    <div class="campo col-3" data-campo="cidade">
+      <label for="campo-cidade">Cidade</label>
+      <input type="text" id="campo-cidade" name="cidade" maxlength="60">
+    </div>
+
+    <div class="campo col-1" data-campo="uf">
+      <label for="campo-uf">UF</label>
+      <select id="campo-uf" name="uf">
+        <option value=""></option>
+        {% for uf in ufs %}<option value="{{ uf }}">{{ uf }}</option>{% endfor %}
+      </select>
+    </div>
+
+    <div class="campo col-6" data-campo="observacoes">
+      <label for="campo-observacoes">Observações <span class="texto-suave">(opcional)</span></label>
+      <textarea id="campo-observacoes" name="observacoes" maxlength="2000" placeholder="Ex.: portão azul, cachorro bravo, prefere visitas de manhã"></textarea>
+    </div>
+
+    <div class="campo campo--checkbox col-6" data-campo="ativo">
+      <label for="campo-ativo"><input type="checkbox" id="campo-ativo" name="ativo" checked> Cliente ativo</label>
+    </div>
+  </div>
+{% endcall %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/clientes.js') }}"></script>
+{% endblock %}

@@ -123,3 +123,5 @@ CREATE TABLE despesa (
 CREATE INDEX idx_despesa_visita ON despesa (id_visita);
 
 
+SELECT * FROM gestao_servicos.usuario;
+
