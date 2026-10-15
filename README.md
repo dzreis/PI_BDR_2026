@@ -1,6 +1,6 @@
 # Agendô
 
-Aplicação web para pequenos prestadores de serviços recorrentes (jardinagem, estética etc.) organizarem **clientes, agenda de visitas e finanças por serviço**, no lugar de cadernos e planilhas soltas.
+Aplicação web para pequenos prestadores de serviços recorrentes (como jardinagem) organizarem **clientes, agenda de visitas e finanças por serviço**, no lugar de cadernos e planilhas soltas.
 
 Projeto Integrador das disciplinas de Banco de Dados Relacional e Desenvolvimento Web.
 
@@ -35,8 +35,6 @@ python run.py
 
 Abra <http://127.0.0.1:5000> e crie sua conta.
 
-**Quer ver o sistema já preenchido?** Depois do passo 2, rode `python database/dados_exemplo.py`: ele cria o usuário `demo@agendo.com` (senha `demo12345`) com clientes, serviços, contratos, histórico de visitas, pagamentos e despesas.
-
 > O script SQL não pode ser executado duas vezes seguidas (as tabelas já existem). Para recomeçar do zero: `DROP DATABASE gestao_servicos;` e rode o passo 2 de novo.
 
 ## Estrutura de pastas
@@ -45,10 +43,9 @@ Abra <http://127.0.0.1:5000> e crie sua conta.
 PI_BDR_2026/
 ├── run.py                    # inicia o servidor
 ├── requirements.txt
-├── .env.example              # modelo das configurações (o .env real não vai ao Git)
+├── .env.example              # modelo das configurações
 ├── database/
 │   ├── gestao_servicos.sql   # criação do banco e das tabelas
-│   └── dados_exemplo.py      # (opcional) popula o banco com dados de demonstração
 └── app/
     ├── __init__.py           # fábrica da aplicação (criar_app)
     ├── config.py             # configurações lidas do .env
@@ -58,7 +55,7 @@ PI_BDR_2026/
     ├── api_utils.py          # respostas padronizadas da API (erros em JSON)
     ├── recorrencia.py        # classe Recorrencia: em que datas caem as visitas
     ├── models/               # uma classe por tabela
-    │   ├── base.py           #   ModeloBase e ModeloDoUsuario (CRUD herdado)
+    │   ├── base.py           #   ModeloBase e ModeloDoUsuario (CRUD)
     │   └── usuario.py, cliente.py, servico.py, contrato.py, visita.py, despesa.py,
     │                         #   financeiro.py (lucro por serviço), painel.py (resumo da página inicial)
     ├── routes/               # um Blueprint por área (página HTML + API JSON)
@@ -88,7 +85,7 @@ Ao criar um contrato ativo, o sistema cria sozinho as visitas dos **próximos 3 
 | Mensal | no mesmo dia do mês do início (início em 31/01 → 28/02, 31/03...) |
 
 - A janela começa na data de início ou em **hoje** (o que for mais tarde), então nunca nascem visitas no passado, e termina em 3 meses ou na **data de término** do contrato.
-- Todas as visitas nascem como `AGENDADA`, com o valor do contrato em `valor_cobrado` e no horário escolhido (padrão 09:00).
+- Todas as visitas nascem como `AGENDADA`, com o valor do contrato em `valor_cobrado` e no horário escolhido (padrão 08:00).
 - Passados os 3 meses, o botão **Gerar visitas** do cartão cria as que faltam. Ele pode ser usado à vontade: datas que já têm visita são puladas.
 - Ao **editar** o contrato (frequência, término, valor, ativar/inativar), as visitas agendadas **de hoje em diante** são refeitas ou atualizadas. Visitas realizadas, canceladas, pagas, com despesas, com observações ou de dias passados **nunca** são alteradas.
 - Um contrato só pode ser **excluído** se não tiver esse histórico; caso contrário, o sistema orienta a inativá-lo.
@@ -105,7 +102,7 @@ A tela **Agenda** mostra as visitas do mês de duas formas, que se alternam no b
 | Remarcada | apenas consulta (a nova visita criada na data escolhida é a que vale) |
 
 - Visitas **realizadas ou pagas** não podem ser excluídas (histórico). Para mudar o valor de uma visita paga, desfaça o pagamento antes.
-- **Despesas** (material, combustível...) ficam dentro da visita; a janela mostra o lucro da visita (valor cobrado − despesas).
+- **Despesas** (material, combustível, etc) ficam dentro da visita; a janela mostra o lucro da visita (valor cobrado − despesas).
 - **Nova visita** cria uma visita extra fora da recorrência do contrato.
 - Visitas remarcadas ou com observações nunca são refeitas ao editar o contrato.
 
@@ -145,11 +142,3 @@ Um **usuário** tem seus **clientes** e **serviços**; o **contrato** liga um cl
 - **Segurança:** todo SQL usa parâmetros (`%s`), toda alteração de dados exige token CSRF, e cada usuário só enxerga os próprios dados.
 - **Front-end:** as telas conversam com a API apenas pela classe `ApiClient`; avisos, janelas e confirmações usam `Notificacao`, `Modal` e `Confirmacao`. Cada tela de cadastro é uma classe que herda de `PaginaCrud` e só implementa o que é específico dela.
 - **Exclusão:** cliente com contratos e serviço usado em contratos não podem ser excluídos (o banco protege com chave estrangeira); a tela orienta a **inativá-los**.
-
-## Andamento
-
-- [x] **Parte 1 — Base:** configuração, banco, login/cadastro/logout, layout e classes JavaScript base
-- [x] **Parte 2 — Clientes e Serviços:** CRUD completo, busca, filtro por situação e preenchimento do endereço pelo CEP (ViaCEP)
-- [x] **Parte 3 — Contratos:** CRUD e geração automática das visitas (semanal, quinzenal e mensal, para os próximos 3 meses)
-- [x] **Parte 4 — Agenda e despesas:** acompanhar visitas, registrar pagamentos e gastos
-- [x] **Parte 5 — Financeiro e painel:** lucro por serviço, painel inicial e ajustes finais

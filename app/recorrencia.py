@@ -25,7 +25,7 @@ import calendar
 from datetime import date, time, timedelta
 
 # Horário usado quando a pessoa não informa um (pode ser trocado em cada visita).
-HORARIO_PADRAO = time(9, 0)
+HORARIO_PADRAO = time(8, 0)
 
 
 class Recorrencia:
