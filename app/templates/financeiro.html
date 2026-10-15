@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Financeiro{% endblock %}
+
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div>
+    <h1>Financeiro</h1>
+    <p class="texto-suave">Quanto cada serviço rende: o que foi faturado, o que já entrou e o que sobra depois das despesas.</p>
+  </div>
+  <button type="button" class="btn btn--secundario" id="exportar">{{ ui.icone("file-text", 18) }} Exportar CSV</button>
+</header>
+
+<div class="barra">
+  <select id="periodo" class="barra__filtro" aria-label="Período">
+    <option value="mes">Este mês</option>
+    <option value="mes_anterior">Mês anterior</option>
+    <option value="3meses">Últimos 3 meses</option>
+    <option value="ano">Este ano</option>
+    <option value="personalizado">Personalizado...</option>
+  </select>
+  <div class="periodo-datas oculto" id="periodo-datas">
+    <label class="sr-somente" for="data-inicio">De</label>
+    <input type="date" id="data-inicio" class="barra__filtro">
+    <span class="texto-suave">até</span>
+    <label class="sr-somente" for="data-fim">Até</label>
+    <input type="date" id="data-fim" class="barra__filtro">
+  </div>
+  <span class="barra__contador texto-suave" id="rotulo-periodo" aria-live="polite"></span>
+</div>
+
+{#- Indicadores do período (preenchidos pelo JavaScript) -#}
+<section class="resumo resumo--5" aria-label="Resumo do período">
+  <div class="resumo__item"><span>Faturado</span><strong id="kpi-faturado">R$ 0,00</strong></div>
+  <div class="resumo__item resumo__item--ok"><span>Recebido</span><strong id="kpi-recebido">R$ 0,00</strong></div>
+  <div class="resumo__item resumo__item--aviso"><span>A receber</span><strong id="kpi-receber">R$ 0,00</strong></div>
+  <div class="resumo__item resumo__item--erro"><span>Despesas</span><strong id="kpi-despesas">R$ 0,00</strong></div>
+  <div class="resumo__item resumo__item--destaque"><span>Lucro</span><strong id="kpi-lucro">R$ 0,00</strong><small id="kpi-margem"></small></div>
+</section>
+
+<section class="card secao">
+  <h2 class="card__titulo">Lucro por serviço</h2>
+  <p class="texto-suave secao__ajuda">Considera as visitas <strong>realizadas</strong> no período. Lucro = faturado − despesas.</p>
+  <div class="tabela-wrap" id="tabela-servicos"></div>
+</section>
+
+<section class="card secao">
+  <h2 class="card__titulo">Últimos 6 meses</h2>
+  <div id="grafico"></div>
+</section>
+
+<section class="card secao">
+  <div class="secao__topo">
+    <h2 class="card__titulo">Visitas a receber</h2>
+    <strong id="total-receber"></strong>
+  </div>
+  <p class="texto-suave secao__ajuda">Visitas já realizadas que ainda não foram pagas (de qualquer data). Clique para abrir no dia da agenda.</p>
+  <div id="lista-receber" class="dia-grupo__visitas"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/financeiro.js') }}"></script>
+{% endblock %}

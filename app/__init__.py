@@ -84,12 +84,15 @@ def _registrar_blueprints(app):
     Ao criar uma nova área (clientes, serviços...), importe o módulo aqui e
     registre o seu `bp`.
     """
-    from app.routes import auth, clientes, inicio, servicos
+    from app.routes import agenda, auth, clientes, contratos, financeiro, inicio, servicos
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(inicio.bp)
     app.register_blueprint(clientes.bp)
     app.register_blueprint(servicos.bp)
+    app.register_blueprint(contratos.bp)
+    app.register_blueprint(agenda.bp)
+    app.register_blueprint(financeiro.bp)
 
 
 def _registrar_tratadores_de_erro(app):

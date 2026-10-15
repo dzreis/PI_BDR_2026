@@ -7,38 +7,71 @@
 <header class="pagina-cabecalho">
   <div>
     <h1>Olá, {{ current_user.primeiro_nome() }}!</h1>
-    <p class="texto-suave">Veja por onde começar a organizar o seu negócio.</p>
+    <p class="texto-suave" id="data-hoje">Veja como está o seu dia e o seu mês.</p>
   </div>
+  <a class="btn btn--primario" href="{{ url_for('agenda.pagina') }}">{{ ui.icone("calendar", 18) }} Abrir agenda</a>
 </header>
 
-<section class="card">
-  <h2 class="card__titulo">Primeiros passos</h2>
+{#- Indicadores (preenchidos pelo JavaScript: static/js/inicio.js) -#}
+<section class="resumo" aria-label="Resumo">
+  <div class="resumo__item"><span>Visitas hoje</span><strong id="kpi-hoje">0</strong><small id="kpi-hoje-detalhe"></small></div>
+  <div class="resumo__item" id="cartao-atrasadas"><span>Atrasadas</span><strong id="kpi-atrasadas">0</strong><small>agendadas que já passaram</small></div>
+  <div class="resumo__item resumo__item--aviso"><span>A receber</span><strong id="kpi-receber">R$ 0,00</strong><small id="kpi-receber-detalhe"></small></div>
+  <div class="resumo__item resumo__item--destaque"><span>Lucro do mês</span><strong id="kpi-lucro">R$ 0,00</strong><small id="kpi-lucro-detalhe"></small></div>
+</section>
 
-  {#- (rota, ícone, título, descrição). Passos cujas telas ainda não existem aparecem como "Em breve". -#}
+{#- Só aparece enquanto a conta ainda não tem clientes ou contratos -#}
+<section class="card secao oculto" id="primeiros-passos">
+  <h2 class="card__titulo">Primeiros passos</h2>
   {% set passos = [
     ("clientes.pagina", "users", "Cadastre seus clientes", "Guarde telefone, endereço e observações de cada um."),
     ("servicos.pagina", "briefcase", "Monte seu catálogo de serviços", "Defina o tipo de serviço e o preço padrão."),
-    ("contratos.pagina", "file-text", "Crie contratos", "Ligue cada cliente a um serviço, com frequência e valor."),
-    ("agenda.pagina", "calendar", "Acompanhe a agenda", "As visitas são geradas a partir dos contratos."),
-    ("financeiro.pagina", "dollar-sign", "Veja o seu lucro", "Receitas e despesas de cada serviço."),
+    ("contratos.pagina", "file-text", "Crie contratos", "Ligue cada cliente a um serviço, com frequência e valor. A agenda é criada sozinha."),
+    ("financeiro.pagina", "dollar-sign", "Acompanhe o seu lucro", "Veja o resultado de cada serviço depois de registrar pagamentos e despesas."),
   ] %}
-
   <ol class="passos">
     {% for endpoint, nome_icone, titulo, descricao in passos %}
-      {% if tem_rota(endpoint) %}
-        <li><a class="passo" href="{{ url_for(endpoint) }}">
-          <span class="passo__numero">{{ loop.index }}</span>
-          <span class="passo__texto"><strong>{{ titulo }}</strong><small>{{ descricao }}</small></span>
-          {{ ui.icone(nome_icone, 22) }}
-        </a></li>
-      {% else %}
-        <li><div class="passo passo--em-breve">
-          <span class="passo__numero">{{ loop.index }}</span>
-          <span class="passo__texto"><strong>{{ titulo }}</strong><small>{{ descricao }}</small></span>
-          <span class="badge badge--cinza">Em breve</span>
-        </div></li>
-      {% endif %}
+      <li><a class="passo" href="{{ url_for(endpoint) }}">
+        <span class="passo__numero">{{ loop.index }}</span>
+        <span class="passo__texto"><strong>{{ titulo }}</strong><small>{{ descricao }}</small></span>
+        {{ ui.icone(nome_icone, 22) }}
+      </a></li>
     {% endfor %}
   </ol>
 </section>
+
+<div class="painel-grade">
+  <div class="painel-grade__coluna">
+    <section class="card secao" id="secao-atencao">
+      <h2 class="card__titulo">Precisam de atenção</h2>
+      <div id="lista-atrasadas"></div>
+    </section>
+
+    <section class="card secao">
+      <h2 class="card__titulo">Hoje</h2>
+      <div id="lista-hoje" class="dia-grupo__visitas"></div>
+    </section>
+  </div>
+
+  <div class="painel-grade__coluna">
+    <section class="card secao">
+      <h2 class="card__titulo">Próximos dias</h2>
+      <div id="lista-proximas"></div>
+    </section>
+
+    <section class="card secao">
+      <div class="secao__topo">
+        <h2 class="card__titulo">Aguardando pagamento</h2>
+        <a href="{{ url_for('financeiro.pagina') }}">Ver financeiro</a>
+      </div>
+      <div id="lista-receber" class="dia-grupo__visitas"></div>
+    </section>
+  </div>
+</div>
+
+{{ ui.modal_visita() }}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/inicio.js') }}"></script>
 {% endblock %}

@@ -19,6 +19,15 @@ from pymysql.err import IntegrityError
 from app.db import Database
 
 
+def normalizar_dinheiro(valor):
+    """Valor em reais com 2 casas, como Decimal (aceita Decimal, float ou texto).
+
+    Serve para comparar valores vindos do banco (Decimal) com valores já
+    validados sem cair em diferenças de arredondamento.
+    """
+    return Decimal(str(valor)).quantize(Decimal("0.01"))
+
+
 class RegistroDuplicadoError(Exception):
     """Violação de UNIQUE: já existe um registro com esse valor."""
 
@@ -41,9 +50,12 @@ class ModeloBase:
     CHAVE = ""
     CAMPOS = ()
     CAMPOS_BOOLEANOS = ()
+    # Informações extras vindas de JOINs/subconsultas (ex.: nome do cliente num
+    # contrato). Não são colunas da tabela: só aparecem em consultas especiais.
+    EXTRAS = ()
 
     def __init__(self, **valores):
-        for campo in self.CAMPOS:
+        for campo in self.CAMPOS + self.EXTRAS:
             setattr(self, campo, valores.get(campo))
 
     @classmethod
@@ -69,7 +81,7 @@ class ModeloBase:
     def to_dict(self):
         """Dicionário pronto para virar JSON (decimais e datas viram tipos simples)."""
         dados = {}
-        for campo in self.CAMPOS:
+        for campo in self.CAMPOS + self.EXTRAS:
             valor = getattr(self, campo)
             if campo in self.CAMPOS_BOOLEANOS:
                 valor = bool(valor)

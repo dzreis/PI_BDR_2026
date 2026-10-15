@@ -124,4 +124,7 @@ CREATE INDEX idx_despesa_visita ON despesa (id_visita);
 
 
 SELECT * FROM gestao_servicos.usuario;
+SELECT * FROM cliente;
+SELECT * FROM servico;
+
 

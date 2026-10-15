@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as ui %}
+
+{% block titulo %}Agenda{% endblock %}
+
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div>
+    <h1>Agenda</h1>
+    <p class="texto-suave">Acompanhe as visitas do mês, registre o que foi feito e o que já foi pago.</p>
+  </div>
+  <button type="button" class="btn btn--primario" id="botao-novo">{{ ui.icone("plus", 18) }} Nova visita</button>
+</header>
+
+{#- Resumo do mês (preenchido pelo JavaScript) -#}
+<section class="resumo" aria-label="Resumo do mês">
+  <div class="resumo__item"><span>Agendadas</span><strong id="resumo-agendadas">0</strong></div>
+  <div class="resumo__item"><span>Realizadas</span><strong id="resumo-realizadas">0</strong></div>
+  <div class="resumo__item resumo__item--aviso"><span>A receber</span><strong id="resumo-receber">R$ 0,00</strong></div>
+  <div class="resumo__item resumo__item--ok"><span>Recebido</span><strong id="resumo-recebido">R$ 0,00</strong></div>
+</section>
+
+<div class="agenda-barra">
+  <div class="navegacao-mes">
+    <button type="button" class="btn btn--secundario btn--icone" id="mes-anterior" aria-label="Mês anterior">{{ ui.icone("chevron-left", 18) }}</button>
+    <h2 id="titulo-mes" aria-live="polite"></h2>
+    <button type="button" class="btn btn--secundario btn--icone" id="mes-seguinte" aria-label="Próximo mês">{{ ui.icone("chevron-right", 18) }}</button>
+    <button type="button" class="btn btn--secundario btn--pequeno" id="ir-hoje">Hoje</button>
+  </div>
+
+  <div class="alternador" role="group" aria-label="Forma de exibir a agenda">
+    <button type="button" class="alternador__opcao" data-visao="calendario" aria-pressed="true">{{ ui.icone("calendar", 16) }} Calendário</button>
+    <button type="button" class="alternador__opcao" data-visao="lista" aria-pressed="false">{{ ui.icone("list", 16) }} Lista</button>
+  </div>
+</div>
+
+<div class="barra">
+  <div class="busca">
+    {{ ui.icone("search", 18) }}
+    <input type="search" id="busca" placeholder="Buscar por cliente ou serviço" aria-label="Buscar por cliente ou serviço" autocomplete="off">
+  </div>
+  <select id="filtro-situacao" class="barra__filtro" aria-label="Filtrar por situação">
+    <option value="todas">Todas as situações</option>
+    <option value="AGENDADA">Agendadas</option>
+    <option value="REALIZADA">Realizadas</option>
+    <option value="A_RECEBER">A receber</option>
+    <option value="CANCELADA">Canceladas</option>
+    <option value="REMARCADA">Remarcadas</option>
+  </select>
+</div>
+
+{#- O calendário ou a lista são desenhados pelo JavaScript (static/js/agenda.js) -#}
+<section id="visao" class="agenda"><p class="vazio">Carregando...</p></section>
+
+{{ ui.modal_visita() }}
+
+{#- Janela de nova visita (extra, fora da recorrência) -#}
+<dialog class="modal" id="modal-nova" aria-labelledby="nova-titulo">
+  <form id="form-nova" autocomplete="off" novalidate>
+    <div class="modal__cabecalho">
+      <h2 id="nova-titulo">Nova visita</h2>
+      <button type="button" class="btn btn--fantasma btn--icone" data-fechar-modal aria-label="Fechar">{{ ui.icone("x") }}</button>
+    </div>
+    <div class="modal__corpo">
+      <div class="grade-form">
+        <div class="campo col-6" data-campo="id_contrato">
+          <label for="nova-contrato">Contrato</label>
+          <select id="nova-contrato" name="id_contrato" required></select>
+        </div>
+        <div class="campo col-3" data-campo="data">
+          <label for="nova-data">Data</label>
+          <input type="date" id="nova-data" name="data" required>
+        </div>
+        <div class="campo col-3" data-campo="horario">
+          <label for="nova-horario">Horário</label>
+          <input type="time" id="nova-horario" name="horario" value="09:00" required>
+        </div>
+        <div class="campo col-3" data-campo="valor_cobrado">
+          <label for="nova-valor">Valor (R$) <span class="texto-suave">(opcional)</span></label>
+          <input type="text" id="nova-valor" name="valor_cobrado" inputmode="decimal" placeholder="Valor do contrato">
+        </div>
+        <div class="campo col-3" data-campo="observacoes">
+          <label for="nova-obs">Observações <span class="texto-suave">(opcional)</span></label>
+          <input type="text" id="nova-obs" name="observacoes" maxlength="255" placeholder="Visita extra">
+        </div>
+      </div>
+    </div>
+    <div class="modal__rodape">
+      <button type="button" class="btn btn--secundario" data-fechar-modal>Cancelar</button>
+      <button type="submit" class="btn btn--primario">Agendar</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/agenda.js') }}"></script>
+{% endblock %}

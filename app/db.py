@@ -8,6 +8,8 @@ Todas as consultas usam parâmetros (`%s`) em vez de montar o SQL com
 concatenação de texto. Isso protege contra SQL Injection.
 """
 
+from contextlib import contextmanager
+
 import pymysql
 from flask import current_app, g
 from pymysql.cursors import DictCursor
@@ -80,6 +82,29 @@ class Database:
         """Executa um UPDATE/DELETE e devolve quantas linhas foram afetadas."""
         _, linhas_afetadas = cls._escrever(sql, parametros)
         return linhas_afetadas
+
+    @classmethod
+    @contextmanager
+    def transacao(cls):
+        """Agrupa vários comandos numa só transação: ou todos valem, ou nenhum.
+
+        Uso:
+            with Database.transacao() as cursor:
+                cursor.execute("INSERT ...", (...))
+                cursor.execute("UPDATE ...", (...))
+
+        Se tudo correr bem, o `commit` é feito ao sair do bloco. Se qualquer
+        comando lançar erro, o `rollback` desfaz tudo o que foi feito dentro do
+        bloco (ex.: um contrato não fica sem as suas visitas).
+        """
+        conexao = cls.conexao()
+        try:
+            with conexao.cursor() as cursor:
+                yield cursor
+            conexao.commit()
+        except Exception:
+            conexao.rollback()
+            raise
 
     @classmethod
     def _escrever(cls, sql, parametros):

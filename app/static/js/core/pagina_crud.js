@@ -11,6 +11,9 @@
  *   rotuloItem(item)    nome mostrado nas confirmações       (obrigatório)
  *   aoIniciar()                  gancho: roda uma vez ao abrir a página
  *   aoPreencherFormulario(item)  gancho: ajusta o formulário ao abrir
+ *   mensagemSalvo(resposta, eraEdicao)  gancho: texto do aviso após salvar
+ *   aoAcaoPersonalizada(acao, item)     gancho: botões extras do cartão
+ *                                       (qualquer data-acao além de novo/editar/excluir/alternar)
  *
  * Elementos que a página HTML precisa ter (veja _componentes.html):
  *   #lista  #busca  #filtro-status  #contador  #botao-novo
@@ -146,6 +149,7 @@ export class PaginaCrud {
     if (acao === "editar") this.abrirFormulario(item);
     else if (acao === "excluir") this.excluir(item);
     else if (acao === "alternar") this.alternarAtivo(item);
+    else this.aoAcaoPersonalizada(acao, item);
   }
 
   // ------------------------------------------------------------------
@@ -171,11 +175,14 @@ export class PaginaCrud {
     this.modal.abrir();
   }
 
-  /** Lê os campos do formulário (checkbox vira true/false; textos sem espaços nas pontas). */
+  /**
+   * Lê os campos do formulário (checkbox vira true/false; textos sem espaços nas pontas).
+   * Campos bloqueados (`disabled`) não são enviados: servem só para mostrar o valor.
+   */
   coletarDados() {
     const dados = {};
     for (const campo of this.formulario.elements) {
-      if (!campo.name) continue;
+      if (!campo.name || campo.disabled) continue;
       dados[campo.name] = campo.type === "checkbox" ? campo.checked : campo.value.trim();
     }
     return dados;
@@ -189,13 +196,13 @@ export class PaginaCrud {
 
     try {
       const dados = this.coletarDados();
-      if (this.editando) {
-        await this.api.put(`${this.recurso}/${this.editando[this.chave]}`, dados);
-      } else {
-        await this.api.post(this.recurso, dados);
-      }
+      const eraEdicao = this.editando !== null;
+      const resposta = eraEdicao
+        ? await this.api.put(`${this.recurso}/${this.editando[this.chave]}`, dados)
+        : await this.api.post(this.recurso, dados);
+
       this.modal.fechar();
-      Notificacao.sucesso(`${primeiraMaiuscula(this.nomeItem)} salvo com sucesso.`);
+      Notificacao.sucesso(this.mensagemSalvo(resposta, eraEdicao));
       await this.carregar();
     } catch (erro) {
       if (erro instanceof ApiError && erro.detalhes) {
@@ -333,6 +340,14 @@ export class PaginaCrud {
   rotuloItem(item) {
     throw new Error("A classe filha precisa implementar rotuloItem(item).");
   }
+
+  /** Gancho opcional: texto do aviso mostrado depois de salvar. */
+  mensagemSalvo(resposta, eraEdicao) {
+    return `${primeiraMaiuscula(this.nomeItem)} salvo com sucesso.`;
+  }
+
+  /** Gancho opcional: trata botões extras do cartão (data-acao próprio). */
+  aoAcaoPersonalizada(acao, item) {}
 
   /** Gancho opcional: roda uma vez, antes de carregar a lista. */
   aoIniciar() {}

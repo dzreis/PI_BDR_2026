@@ -323,6 +323,14 @@ img, svg {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
+/* Campos bloqueados (ex.: cliente de um contrato já criado) */
+.campo input:disabled,
+.campo select:disabled {
+  background: var(--cinza-100);
+  color: var(--cinza-500);
+  cursor: not-allowed;
+}
+
 .campo__ajuda { color: var(--cinza-500); font-size: 0.8rem; }
 .campo__erro { color: var(--vermelho-600); font-size: 0.8rem; }
 .campo--erro input,
@@ -579,6 +587,8 @@ a.passo:hover {
 
 .cartao__preco small { color: var(--cinza-500); font-size: 0.8rem; font-weight: 500; }
 .cartao__texto { color: var(--cinza-600); font-size: 0.92rem; }
+.cartao__subtitulo { color: var(--cinza-600); font-size: 0.92rem; overflow-wrap: anywhere; }
+.cartao__selos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
 
 .cartao__rodape {
   display: flex;
@@ -681,6 +691,16 @@ dialog.modal--grande { width: min(720px, calc(100% - 32px)); }
 }
 
 .tabela tbody tr:hover { background: var(--cinza-50); }
+/* Primeira coluna (th de linha) é um dado, não um título: sem o estilo de cabeçalho */
+.tabela tbody th, .tabela tfoot th {
+  padding: 14px 16px;
+  background: transparent;
+  border-bottom: 1px solid var(--cinza-100);
+  color: inherit;
+  font-size: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
 .tabela__acoes { text-align: right; white-space: nowrap; }
 
 .vazio {
@@ -810,6 +830,332 @@ dialog.modal::backdrop { background: rgba(15, 23, 42, 0.5); }
   border-top: 1px solid var(--cinza-200);
   background: var(--cinza-50);
 }
+
+
+/* ---------- 9b. Agenda (calendário, lista e janela da visita) ---------- */
+.btn--perigo-texto { color: var(--vermelho-600); margin-left: auto; }
+.btn--perigo-texto:hover:not(:disabled) { background: var(--vermelho-50); }
+
+/* Resumo do mês */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.resumo__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--cinza-200);
+  border-radius: var(--raio);
+  background: #fff;
+  box-shadow: var(--sombra-sm);
+}
+
+.resumo__item span { color: var(--cinza-500); font-size: 0.85rem; }
+.resumo__item strong { font-size: 1.35rem; color: var(--cinza-900); }
+.resumo__item--aviso strong { color: var(--amarelo-700); }
+.resumo__item--ok strong { color: var(--verde-700); }
+
+/* Navegação do mês e alternador Calendário/Lista */
+.agenda-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.navegacao-mes { display: flex; align-items: center; gap: 8px; }
+.navegacao-mes h2 { min-width: 11ch; text-align: center; font-size: 1.15rem; }
+.navegacao-mes h2::first-letter { text-transform: uppercase; }
+
+.alternador {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--cinza-300);
+  border-radius: var(--raio-sm);
+  background: var(--cinza-100);
+}
+
+.alternador__opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: var(--cinza-600);
+  cursor: pointer;
+}
+
+.alternador__opcao--ativa { background: #fff; color: var(--azul-700); box-shadow: var(--sombra-sm); }
+
+/* Calendário mensal */
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--cinza-200);
+  border-radius: var(--raio);
+  background: var(--cinza-200);
+  gap: 1px;
+  overflow: hidden;
+  box-shadow: var(--sombra-sm);
+}
+
+.calendario__semana {
+  padding: 8px 4px;
+  background: var(--cinza-50);
+  color: var(--cinza-500);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.calendario__dia {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 108px;
+  padding: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.calendario__dia:hover { background: var(--azul-50); }
+.calendario__dia:focus-visible { outline: 2px solid var(--azul-600); outline-offset: -2px; }
+.calendario__dia--fora { background: var(--cinza-50); color: var(--cinza-400); }
+.calendario__dia--selecionado { background: var(--azul-50); box-shadow: inset 0 0 0 2px var(--azul-600); }
+
+.calendario__numero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.calendario__num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+.calendario__dia--hoje .calendario__num { background: var(--azul-600); color: #fff; }
+
+.calendario__total {
+  display: none;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--cinza-200);
+  color: var(--cinza-600);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.calendario__etiquetas { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+.etiqueta {
+  display: block;
+  padding: 2px 6px;
+  border-left: 3px solid var(--azul-600);
+  border-radius: 4px;
+  background: var(--azul-50);
+  color: var(--azul-700);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.etiqueta:hover { filter: brightness(0.95); }
+.etiqueta--realizada { border-color: var(--verde-600); background: #dcfce7; color: var(--verde-700); }
+.etiqueta--cancelada { border-color: var(--cinza-400); background: var(--cinza-100); color: var(--cinza-500); text-decoration: line-through; }
+.etiqueta--remarcada { border-color: #f59e0b; background: #fef3c7; color: var(--amarelo-700); text-decoration: line-through; }
+
+.calendario__mais { padding-left: 6px; color: var(--cinza-500); font-size: 0.75rem; font-weight: 600; }
+
+/* Pontinhos: aparecem no lugar das etiquetas em telas pequenas */
+.calendario__pontos { display: none; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.ponto { width: 7px; height: 7px; border-radius: 50%; background: var(--azul-600); }
+.ponto--realizada { background: var(--verde-600); }
+.ponto--cancelada { background: var(--cinza-400); }
+.ponto--remarcada { background: #f59e0b; }
+
+/* Lista de visitas (agrupada por dia e painel do dia selecionado) */
+.agenda .vazio { padding: 40px 16px; }
+.vazio--pequeno { padding: 16px 0 !important; }
+
+.dia-grupo, .painel-dia {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--cinza-200);
+  border-radius: var(--raio);
+  background: #fff;
+  box-shadow: var(--sombra-sm);
+}
+
+.painel-dia { margin-top: 16px; margin-bottom: 0; }
+.dia-grupo--hoje { border-color: var(--azul-200); box-shadow: 0 0 0 2px var(--azul-100); }
+
+.dia-grupo__cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.dia-grupo__cabecalho h3 { font-size: 1rem; }
+.dia-grupo__visitas { display: flex; flex-direction: column; gap: 8px; }
+
+.visita {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--cinza-200);
+  border-left: 4px solid var(--azul-600);
+  border-radius: var(--raio-sm);
+  background: #fff;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.visita:hover { background: var(--cinza-50); box-shadow: var(--sombra-sm); }
+.visita:focus-visible { outline: 2px solid var(--azul-600); outline-offset: 2px; }
+.visita--realizada { border-left-color: var(--verde-600); }
+.visita--cancelada { border-left-color: var(--cinza-400); opacity: 0.75; }
+.visita--remarcada { border-left-color: #f59e0b; opacity: 0.75; }
+
+.visita__hora { min-width: 4.5ch; font-weight: 700; color: var(--cinza-700); font-variant-numeric: tabular-nums; }
+.visita__texto { display: flex; flex-direction: column; min-width: 0; }
+.visita__texto strong, .visita__texto small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.visita__texto small { color: var(--cinza-500); }
+.visita__selos { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.visita__valor { min-width: 8ch; font-weight: 600; text-align: right; }
+
+/* Janela da visita */
+.visita-resumo { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.visita-resumo .cartao__info { margin: 0; }
+
+.visita-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--cinza-100);
+}
+
+.visita-painel {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid var(--azul-200);
+  border-radius: var(--raio-sm);
+  background: var(--azul-50);
+}
+
+.visita-painel h3 { margin-bottom: 12px; font-size: 1rem; }
+.visita-painel__campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.visita-painel__botoes { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.visita-secao { margin-bottom: 20px; }
+.visita-secao:last-child { margin-bottom: 0; }
+.visita-secao h3 { margin-bottom: 10px; font-size: 0.95rem; color: var(--cinza-700); }
+.visita-secao__linha { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; }
+.visita-secao__rodape { display: flex; justify-content: flex-end; margin-top: 10px; }
+
+.despesas { display: flex; flex-direction: column; gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
+
+.despesa {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--cinza-200);
+  border-radius: var(--raio-sm);
+}
+
+.despesa__texto { display: flex; flex-direction: column; min-width: 0; }
+.despesa__texto small { color: var(--cinza-500); }
+.despesa__valor { font-weight: 600; color: var(--vermelho-700); }
+
+.visita-lucro { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 0 0 12px; color: var(--cinza-600); }
+.visita-lucro strong { color: var(--verde-700); }
+
+.despesa-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 150px auto;
+  align-items: end;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--cinza-200);
+}
+
+
+/* ---------- 9c. Financeiro e painel inicial ---------- */
+.resumo--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.resumo__item small { color: var(--cinza-500); font-size: 0.78rem; }
+.resumo__item--erro strong { color: var(--vermelho-600); }
+.resumo__item--destaque { border-color: var(--azul-200); background: var(--azul-50); }
+.resumo__item--destaque strong { color: var(--azul-700); }
+strong.negativo, small.negativo { color: var(--vermelho-600) !important; }
+.resumo__item--destaque strong.negativo { color: var(--vermelho-600); }
+
+.secao { margin-bottom: 20px; padding: 20px; }
+.secao__ajuda { margin: -8px 0 14px; font-size: 0.9rem; }
+.secao__topo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.secao__topo .card__titulo { margin-bottom: 16px; }
+
+.periodo-datas { display: flex; align-items: center; gap: 8px; }
+
+.tabela .num { text-align: right; font-variant-numeric: tabular-nums; }
+.tabela__nome { font-weight: 600; text-align: left; }
+.tabela .tabela__total th, .tabela .tabela__total td { background: var(--cinza-50); font-weight: 700; border-bottom: 0; }
+.barra-lucro { display: block; height: 5px; margin: 6px 0 0 auto; width: 100%; max-width: 120px; border-radius: 999px; background: var(--cinza-100); overflow: hidden; }
+.barra-lucro i { display: block; height: 100%; border-radius: 999px; background: var(--verde-600); }
+.barra-lucro i.negativo { background: var(--vermelho-600); }
+
+/* Gráfico de colunas: faturado (azul) e despesas (laranja) por mês */
+.grafico { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; align-items: end; }
+.grafico__mes { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.grafico__barras { display: flex; align-items: flex-end; justify-content: center; gap: 4px; width: 100%; height: 160px; border-bottom: 1px solid var(--cinza-300); }
+.grafico__barra { display: block; width: 36%; max-width: 32px; border-radius: 4px 4px 0 0; min-height: 0; }
+.grafico__barra--faturado { background: var(--azul-600); }
+.grafico__barra--despesa { background: #f59e0b; }
+.grafico__valor { min-height: 1.1em; font-size: 0.72rem; color: var(--cinza-600); white-space: nowrap; }
+.grafico__rotulo { font-size: 0.85rem; font-weight: 600; color: var(--cinza-700); }
+.grafico__lucro { min-height: 1.1em; font-size: 0.72rem; color: var(--verde-700); text-align: center; }
+.grafico__legenda { display: flex; justify-content: center; gap: 20px; margin: 16px 0 0; color: var(--cinza-600); font-size: 0.85rem; }
+.grafico__legenda i { display: inline-block; width: 12px; height: 12px; margin-right: 4px; border-radius: 3px; vertical-align: -1px; }
+
+a.visita--link { text-decoration: none; }
+
+/* Painel inicial: duas colunas */
+.painel-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.painel-grade__coluna { min-width: 0; }
+.painel-grade .dia-grupo { padding: 12px; box-shadow: none; }
+.secao .visita { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: 4px; }
+.secao .visita__selos { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+.secao .visita__valor { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
 
 
 /* ---------- 10. Telas de login e de erro ---------- */
@@ -947,6 +1293,51 @@ dialog.modal::backdrop { background: rgba(15, 23, 42, 0.5); }
   .auth__marca { display: none; }
   .auth__logo-mobile { display: flex; }
   .auth__formulario { align-items: flex-start; padding: 32px 20px; }
+}
+
+@media (max-width: 1100px) {
+  .resumo--5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .painel-grade { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .resumo, .resumo--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  /* Calendário compacto: pontinhos no lugar das etiquetas; detalhes no painel abaixo */
+  .calendario__dia { min-height: 56px; align-items: center; padding: 4px 2px; }
+  .calendario__numero { justify-content: center; }
+  .calendario__total, .calendario__etiquetas { display: none; }
+  .calendario__pontos { display: flex; min-height: 7px; }
+
+  /* Visita: dados em duas linhas */
+  .visita { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: 6px; }
+  .visita__selos { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+  .visita__valor { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+
+  .visita-painel__campos, .visita-secao__linha { grid-template-columns: 1fr; }
+  .despesa-form { grid-template-columns: 1fr 1fr; }
+  .despesa-form__descricao { grid-column: 1 / -1; }
+  .despesa-form .btn { grid-column: 1 / -1; }
+  .btn--perigo-texto { margin-left: 0; }
+
+  /* Financeiro */
+  /* Linhas de visita dentro dos cartões do painel/financeiro: hora e valor em cima, nome embaixo */
+  .secao .visita { grid-template-columns: minmax(0, 1fr) auto; }
+  .secao .visita__hora { grid-column: 1; grid-row: 1; }
+  .secao .visita__valor { grid-column: 2; grid-row: 1; align-self: center; min-width: 0; }
+  .secao .visita__texto { grid-column: 1 / -1; grid-row: 2; }
+  .secao .visita__selos { grid-column: 1 / -1; grid-row: 3; justify-content: flex-start; }
+  .secao__topo { flex-wrap: wrap; }
+  .secao__topo a { white-space: nowrap; }
+  .col-opcional, .col-opcional-movel { display: none; }
+  .resumo--5 .resumo__item--destaque { grid-column: 1 / -1; }
+  .tabela th, .tabela td, .tabela tbody th, .tabela tfoot th { padding: 10px 8px; }
+  .grafico { gap: 4px; }
+  .grafico__valor, .grafico__lucro { display: none; }
+  .grafico__barras { height: 120px; }
+  .periodo-datas { flex-wrap: wrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
